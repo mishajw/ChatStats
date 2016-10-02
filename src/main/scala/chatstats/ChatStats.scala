@@ -11,7 +11,8 @@ object ChatStats {
     val messages = loadMessages()
 
     perMemberCounts(messages)
-    mostPopularWords(messages)
+//    mostPopularWords(messages)
+    mostCapitals(messages)
   }
 
   def loadMessages() = {
@@ -30,14 +31,17 @@ object ChatStats {
     allMessages
   }
 
-  def perMemberCounts(messages: Seq[Message]) = {
-    val counts =
-    messages
-      .groupBy({ m => m.header.name })
-      .map( { case (sender, ms) => (sender, ms.length) }).toSeq
-      .sortBy(-_._2)
+  def perMemberCounts(messages: Seq[Message]) {
+    println("Messages per person:")
 
-    println(counts.mkString("\n"))
+    messages
+        .groupBy({ m => m.header.name })
+        .map( { case (sender, ms) => (sender, ms.length) }).toSeq
+        .sortBy(-_._2)
+        .foreach { case (sender, count) =>
+            val percentage: Double = (count.toDouble / messages.size.toDouble) * 100
+          println(f"$sender: $count ($percentage%.2f%%)")
+        }
   }
 
   def mostPopularWords(messages: ArrayBuffer[Message]): Unit = {
@@ -45,6 +49,20 @@ object ChatStats {
         .groupBy(identity)
         .map({ case (w, ws) => (w, ws.length) }).toSeq
         .sortBy(-_._2)
+        .take(20)
         .foreach(println)
+  }
+
+  def mostCapitals(messages: Seq[Message]): Unit = {
+    println("Percentage of capitals in messages:")
+    messages.groupBy(_.header.name)
+        .map( { case (name, ms) =>
+          val allText: Seq[Char] = ms.flatMap(_.contents)
+          (name, allText.count(Character.isUpperCase).toDouble / allText.size.toDouble)
+        }).toSeq
+        .sortBy(-_._2)
+        .foreach { case (name, perc) =>
+          println(f"$name: ${perc * 100}%.2f%%")
+        }
   }
 }
