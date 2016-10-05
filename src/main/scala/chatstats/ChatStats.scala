@@ -81,6 +81,11 @@ object ChatStats {
 
     words
       .groupBy(identity)
-      .map({ case (w, ws) => (w, ws.length.toDouble / words.length.toDouble) })
+      .flatMap({ case (w, ws) =>
+        if (ws.length > 10)
+          Some(w, ws.length.toDouble / words.length.toDouble)
+        else
+          None
+      })
   }
 }
