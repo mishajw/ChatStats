@@ -2,4 +2,5 @@ project
 .idea
 src/main/resources
 target
+wordcloud/data
 
