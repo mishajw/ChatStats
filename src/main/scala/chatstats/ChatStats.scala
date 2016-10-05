@@ -1,7 +1,6 @@
 package chatstats
 
 import scala.collection.mutable.ArrayBuffer
-import scala.io.Source
 
 object ChatStats {
 
@@ -14,6 +13,7 @@ object ChatStats {
     perMemberCounts(messages)
     mostCapitals(messages)
     wordOutliers(messages)
+    dayFrequencies(messages)
   }
 
   def loadMessages() = {
@@ -56,6 +56,14 @@ object ChatStats {
         .foreach { case (name, perc) =>
           println(f"$name: ${perc * 100}%.2f%%")
         }
+  }
+
+  def dayFrequencies(messages: Seq[Message]): Unit = {
+    messages
+      .map(_.header.time.split(", ").head)
+      .groupBy(identity)
+      .map({ case (d, ds) => (d, ds.length) })
+      .foreach(println)
   }
 
   def wordOutliers(messages: Seq[Message]): Unit = {
