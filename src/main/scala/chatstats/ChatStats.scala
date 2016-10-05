@@ -11,8 +11,8 @@ object ChatStats {
     val messages = loadMessages()
 
     perMemberCounts(messages)
-//    mostPopularWords(messages)
     mostCapitals(messages)
+    wordOutliers(messages)
   }
 
   def loadMessages() = {
@@ -44,15 +44,6 @@ object ChatStats {
         }
   }
 
-  def mostPopularWords(messages: ArrayBuffer[Message]): Unit = {
-    messages.flatMap(_.contents.toLowerCase().split("[^A-Za-z0-9']+"))
-        .groupBy(identity)
-        .map({ case (w, ws) => (w, ws.length) }).toSeq
-        .sortBy(-_._2)
-        .take(20)
-        .foreach(println)
-  }
-
   def mostCapitals(messages: Seq[Message]): Unit = {
     println("Percentage of capitals in messages:")
     messages.groupBy(_.header.name)
@@ -64,5 +55,32 @@ object ChatStats {
         .foreach { case (name, perc) =>
           println(f"$name: ${perc * 100}%.2f%%")
         }
+  }
+
+  def wordOutliers(messages: Seq[Message]): Unit = {
+    val allFreqs = getWordFrequencies(messages)
+
+    def getOutliers(memberMessages: Seq[Message]) = {
+      getWordFrequencies(memberMessages)
+          .map({ case (w, p) =>
+            (w, { if (allFreqs contains w) Math.abs(allFreqs(w) - p) else p})
+          }).toSeq
+          .sortBy(-_._2)
+          .map(_._1)
+          .take(5)
+    }
+
+    messages
+        .groupBy(_.header.name)
+        .map({ case (sender, ms) => (sender, getOutliers(ms)) })
+        .foreach(println)
+  }
+
+  def getWordFrequencies(messages: Seq[Message]): Map[String, Double] = {
+    val words = messages.flatMap(_.contents.toLowerCase().split("[^A-Za-z0-9']+"))
+
+    words
+      .groupBy(identity)
+      .map({ case (w, ws) => (w, ws.length.toDouble / words.length.toDouble) })
   }
 }
