@@ -1,6 +1,7 @@
 package chatstats
 
 import scala.collection.mutable.ArrayBuffer
+import scala.io.Source
 
 object ChatStats {
 
@@ -77,7 +78,7 @@ object ChatStats {
   }
 
   def getWordFrequencies(messages: Seq[Message]): Map[String, Double] = {
-    val words = messages.flatMap(_.contents.toLowerCase().split("[^A-Za-z0-9']+"))
+    val words = getAllWords(messages)
 
     words
       .groupBy(identity)
@@ -87,5 +88,9 @@ object ChatStats {
         else
           None
       })
+  }
+
+  def getAllWords(messages: Seq[Message]): Seq[String] = {
+    messages.flatMap(_.contents.toLowerCase().split("[^A-Za-z0-9']+"))
   }
 }
