@@ -101,4 +101,34 @@ object ChatStats {
   def getAllWords(messages: Seq[Message]): Seq[String] = {
     messages.flatMap(_.contents.toLowerCase().split("[^A-Za-z0-9']+"))
   }
+
+  def prettyPrint(messages: Seq[Message]): Unit = {
+    val messagesHtml = messages.take(1000).map( m =>
+      s"""
+         |<span class="sender">${m.header.name}</span><span class="colon">:</span>
+         |<span class="message">
+         |  ${m.contents}
+         |</span>
+         |<span class="date">
+         |  ${m.header.time.getTime}
+         |</span>
+       """.stripMargin)
+        .mkString("\n")
+
+    val fullHtml =
+      s"""
+         |<html>
+         |  <head>
+         |    <link rel="stylesheet" type="text/css" href="style.css">
+         |  </head>
+         |  <body>
+         |    <div id="container">
+         |      $messagesHtml
+         |    </div>
+         |  </body>
+         |</html>
+       """.stripMargin
+
+    new PrintWriter("poster/index.html") { write(fullHtml) ; close() }
+  }
 }
