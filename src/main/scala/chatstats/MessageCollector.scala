@@ -1,5 +1,6 @@
 package chatstats
 
+import java.util.Calendar
 import javax.xml.parsers.SAXParserFactory
 
 import org.xml.sax.Attributes
@@ -83,12 +84,28 @@ class MessageCollector(
         text.text,
         Header(
           text.header.sender,
-          text.header.time)))
+          parseDate(text.header.time))))
   }
 
   def run() {
     val factory = SAXParserFactory.newInstance()
     val parser = factory.newSAXParser()
     parser.parse(messagesFilePath, handler)
+  }
+
+  def parseDate(dateString: String): Calendar = {
+    val cal = Calendar.getInstance()
+
+    dateString.split(" ") match {
+      case Array(dayOfWeek, date, month, year, _, time, _) =>
+        cal.set(Calendar.DATE, date.toInt)
+        cal.set(Calendar.MONTH, months.indexOf(month))
+        cal.set(Calendar.YEAR, year.toInt)
+        cal.set(Calendar.HOUR, time.split(":")(0).toInt)
+        cal.set(Calendar.MINUTE, time.split(":")(1).toInt)
+      case _ => println(s"Couldn't recognise date: $dateString")
+    }
+
+    cal
   }
 }

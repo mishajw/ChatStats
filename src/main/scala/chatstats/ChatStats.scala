@@ -1,5 +1,8 @@
 package chatstats
 
+import java.io.PrintWriter
+import java.util.Calendar
+
 import scala.collection.mutable.ArrayBuffer
 
 object ChatStats {
@@ -30,6 +33,7 @@ object ChatStats {
     messageCollector.run()
 
     allMessages
+      .sortBy(_.header.time)
   }
 
   def perMemberCounts(messages: Seq[Message]) {
@@ -60,7 +64,7 @@ object ChatStats {
 
   def dayFrequencies(messages: Seq[Message]): Unit = {
     messages
-      .map(_.header.time.split(", ").head)
+      .map(_.header.time.get(Calendar.DAY_OF_WEEK))
       .groupBy(identity)
       .map({ case (d, ds) => (d, ds.length) })
       .foreach(println)
