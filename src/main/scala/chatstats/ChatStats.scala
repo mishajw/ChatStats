@@ -107,16 +107,20 @@ object ChatStats {
   }
 
   def prettyPrint(messages: Seq[Message]): Unit = {
-    val messagesHtml = messages.take(1000).map( m =>
+    val messagesHtml = messages.map( m => {
+      val formattedName = m.header.name match {
+        case "Sam Judd" => "SJu"
+        case "Sam James Johnstone" => "SJo"
+        case other =>
+          new String(other.split(" ").map(_.head))
+      }
       s"""
-         |<span class="sender">${m.header.name}</span><span class="colon">:</span>
+         |<span class="sender">$formattedName</span><span class="colon">:</span>
          |<span class="message">
          |  ${m.contents}
          |</span>
-         |<span class="date">
-         |  ${m.header.time.getTime}
-         |</span>
-       """.stripMargin)
+       """.stripMargin
+    })
         .mkString("\n")
 
     val fullHtml =
