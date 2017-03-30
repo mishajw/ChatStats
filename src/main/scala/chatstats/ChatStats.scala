@@ -33,6 +33,7 @@ object ChatStats {
     messageCollector.run()
 
     allMessages
+      .reverse
       .sortBy(_.header.time)
   }
 
