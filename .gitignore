@@ -1,6 +1,8 @@
-project
 .idea
+all-messages.txt
+poster/index.html
+poster/poster.pdf
+project
 src/main/resources
 target
 wordcloud/data
-poster/index.html
